@@ -1,0 +1,61 @@
+name: Hexium Upload
+description: Upload a Thunderstore-compatible package ZIP to Hexium (hexium.gg)
+author: Allspeak contributors
+
+branding:
+  icon: upload-cloud
+  color: purple
+
+inputs:
+  community:
+    description: Community slug to publish to (e.g. valheim). Determines the upload subdomain.
+    required: true
+  file:
+    description: Path to the Thunderstore-compatible package ZIP.
+    required: true
+  token:
+    description: Hexium API token (Settings > API Tokens). A missing "Bearer " prefix is added automatically.
+    required: true
+  namespace:
+    description: Author/team namespace to publish under. Must be a team the token can publish to.
+    required: true
+  categories:
+    description: Comma-separated list of categories to apply.
+    required: false
+    default: ""
+  nsfw:
+    description: Whether the package contains NSFW content (true/false).
+    required: false
+    default: "false"
+  host:
+    description: Repository host to upload to (default hexium.gg).
+    required: false
+    default: hexium.gg
+  base-url:
+    description: Override the full API base URL (advanced; for self-hosted mirrors or testing). Defaults to https://{community}.{host}.
+    required: false
+    default: ""
+
+outputs:
+  package:
+    description: Full name of the uploaded package (Namespace-ModName).
+    value: ${{ steps.upload.outputs.package }}
+  version:
+    description: Version number of the uploaded package.
+    value: ${{ steps.upload.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - id: upload
+      shell: bash
+      env:
+        INPUT_HOST: ${{ inputs.host }}
+        INPUT_BASE_URL: ${{ inputs.base-url }}
+        INPUT_COMMUNITY: ${{ inputs.community }}
+        INPUT_FILE: ${{ inputs.file }}
+        INPUT_TOKEN: ${{ inputs.token }}
+        INPUT_NAMESPACE: ${{ inputs.namespace }}
+        INPUT_CATEGORIES: ${{ inputs.categories }}
+        INPUT_NSFW: ${{ inputs.nsfw }}
+      run: ${{ github.action_path }}/upload.sh
