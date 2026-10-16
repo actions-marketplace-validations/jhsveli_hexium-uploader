@@ -4,13 +4,12 @@ A GitHub Action that uploads a [Thunderstore](https://thunderstore.io)-compatibl
 package ZIP to [Hexium](https://hexium.gg), a Thunderstore-API-compatible mod
 repository.
 
-There is no official Hexium CLI or GitHub Action; this fills that gap. The same
-ZIP `tcli build` produces is accepted as-is (Hexium strips the assumed
-`BepInExPack` dependency automatically).
+Created for lack of official Hexium CLI or GitHub Action. Fits well in a CI pipeline since the same
+ZIP `tcli build` produced is accepted as-is.
 
 ## How it works
 
-Hexium mirrors Thunderstore's experimental upload API. The action drives the
+Hexium mirrors Thunderstore's experimental upload API. The action follows the
 four-step flow:
 
 1. `POST /api/experimental/usermedia/initiate-upload/` — asks for presigned upload part URLs
@@ -24,7 +23,7 @@ The target community is resolved from the **request subdomain**
 ## Requirements
 
 - `bash`, `curl`, and `jq` on the runner (present on GitHub-hosted `ubuntu-*` and `macos-*` runners).
-- A Hexium API token: **Settings → API Tokens** on hexium.gg.
+- A Hexium API token: **Settings → API Tokens** on hexium.gg. 
 - A team (namespace) you own on Hexium, which the token can publish under.
 
 ## Inputs
