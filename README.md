@@ -59,7 +59,9 @@ The target community is resolved from the **request subdomain**
     categories: client-side
 ```
 
-Publishing to both Thunderstore and Hexium from the same release workflow:
+Publishing to both Thunderstore and Hexium from the same release workflow. The ZIP
+is named `{namespace}-{name}-{version}.zip` by `tcli`, so the same file is uploaded
+to both hosts:
 
 ```yaml
 jobs:
@@ -78,10 +80,46 @@ jobs:
         uses: your-org/hexium-uploader@v1
         with:
           community: valheim
-          file: build/YourMod-${{ github.ref_name }}.zip
+          file: build/YourOrg-YourMod-$(tr -d '[:space:]' < version.txt).zip
           token: ${{ secrets.HEXIUM_API_TOKEN }}
           namespace: your-team
 ```
+
+The action only reads the `file` path, so the version can come from anywhere as long as
+it matches what `tcli` stamped the ZIP with. Without a `version.txt`, a common alternative
+is deriving it from the git tag. That needs a step output because `with:` values only
+evaluate `${{ }}` expressions (no shell `${VAR#v}` stripping):
+
+```yaml
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version from tag
+        id: version
+        run: echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build package
+        run: tcli build --config-path thunderstore.toml --package-version "${{ steps.version.outputs.value }}"
+
+      - name: Publish to Thunderstore
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.TCLI_AUTH_TOKEN }}
+        run: tcli publish --config-path thunderstore.toml --package-version "${{ steps.version.outputs.value }}"
+
+      - name: Publish to Hexium
+        uses: your-org/hexium-uploader@v1
+        with:
+          community: valheim
+          file: build/YourOrg-YourMod-${{ steps.version.outputs.value }}.zip
+          token: ${{ secrets.HEXIUM_API_TOKEN }}
+          namespace: your-team
+```
+
+Other sources work the same way: a `workflow_dispatch` input (`${{ inputs.version }}`), or
+the assembly version read from the `.csproj`.
 
 ## Notes and gotchas
 
