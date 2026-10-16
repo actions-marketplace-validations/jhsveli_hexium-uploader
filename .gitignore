@@ -2,3 +2,6 @@
 *.zip
 *.tmp
 build/
+
+# IDE
+.idea

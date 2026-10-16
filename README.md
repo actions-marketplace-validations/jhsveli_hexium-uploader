@@ -50,7 +50,7 @@ The target community is resolved from the **request subdomain**
 
 ```yaml
 - name: Upload to Hexium
-  uses: your-org/hexium-uploader@v1
+  uses: your-org/hexium-uploader@74d6670d8ed4c7ec9f3ebd0aac339e156cedada2 # Pin the action to the latest commit on implementation
   with:
     community: valheim
     file: build/YourMod-1.0.0.zip
